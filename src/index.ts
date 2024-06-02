@@ -1,2 +1,3 @@
-// eslint-disable-next-line no-console
+export {} from "./url"
+
 console.log("Hello, world!")
