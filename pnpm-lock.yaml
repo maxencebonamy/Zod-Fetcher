@@ -13,8 +13,8 @@ importers:
         version: 3.23.8
     devDependencies:
       '@maxencebonamy/eslint-plugin':
-        specifier: 1.0.0
-        version: 1.0.0(eslint@8.57.0)(tailwindcss@3.4.3)(typescript@5.4.5)
+        specifier: 1.0.1
+        version: 1.0.1(eslint@8.57.0)(tailwindcss@3.4.3)(typescript@5.4.5)
       '@types/node':
         specifier: ^20.13.0
         version: 20.13.0
@@ -233,8 +233,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@maxencebonamy/eslint-plugin@1.0.0':
-    resolution: {integrity: sha512-bVhXblSvfGl8BVE7jh+VwNZ2SHeu3/Q+sZumhGSv13mhTooodeUjoM+STRtAzCt3iDyu+s85ltrgpl27twDodQ==}
+  '@maxencebonamy/eslint-plugin@1.0.1':
+    resolution: {integrity: sha512-x+h85bbydM9+AVDfe2RVcVHnhJ3q93pAkxhQ44KPS2xLDmjOfjYgTk+7obAPVfa/0AzK1pxQ0zC06iIPRUEmZA==}
     peerDependencies:
       eslint: '>=8.0.0'
       typescript: '>=4.9.0'
@@ -1953,7 +1953,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  '@maxencebonamy/eslint-plugin@1.0.0(eslint@8.57.0)(tailwindcss@3.4.3)(typescript@5.4.5)':
+  '@maxencebonamy/eslint-plugin@1.0.1(eslint@8.57.0)(tailwindcss@3.4.3)(typescript@5.4.5)':
     dependencies:
       '@stylistic/eslint-plugin': 2.1.0(eslint@8.57.0)(typescript@5.4.5)
       '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5)

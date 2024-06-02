@@ -3,6 +3,7 @@
 	"version": "1.0.0-beta.1",
 	"description": "",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"type": "module",
 	"scripts": {
 		"clean": "rimraf dist",
@@ -21,7 +22,7 @@
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
-		"@maxencebonamy/eslint-plugin": "1.0.0",
+		"@maxencebonamy/eslint-plugin": "1.0.1",
 		"@types/node": "^20.13.0",
 		"eslint": "8.57.0",
 		"rimraf": "^5.0.7",

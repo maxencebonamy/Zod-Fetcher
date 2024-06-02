@@ -1,3 +1,1 @@
-export {} from "./url"
-
-console.log("Hello, world!")
+export { buildUrl } from "./url/index.js"
