@@ -1,0 +1,10 @@
+{
+	"extends": [
+		"plugin:@maxencebonamy/base",
+		"plugin:@maxencebonamy/typescript"
+	],
+	"ignorePatterns": [
+		"node_modules/",
+		"dist/"
+	]
+}
