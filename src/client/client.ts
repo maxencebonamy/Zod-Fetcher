@@ -1,4 +1,4 @@
-import type { PostProps } from "#/client/client.type.js"
+import type { PostPutPatchProps } from "#/client/client.type.js"
 import type { GetProps } from "#/client/index.js"
 import { Query } from "#/query/index.js"
 import { buildUrl } from "#/url/index.js"
@@ -51,23 +51,59 @@ export class ZodFetchClient {
 		return new Query<R>(async () => {
 			const url = buildUrl({ base: baseUrl, endpoint, params })
 
-			const res = await fetch(url, { method: "GET", headers: headers || {} })
-				.then(res => {
-					if (!res.ok) {
-						throw Error(`Fetch error: ${res.statusText}`)
-					}
-					return res
-				})
-				.catch(error => {
-					throw Error(`Fetch error: ${(error as Error).message}`)
-				})
+			const res = await this.fetchWithError(url, { method: "GET", headers: headers || {} })
 
 			const data = await res.text()
 			return validate({ schema: responseSchema, value: data })
 		})
 	}
 
-	public post<T, R = void>({ endpoint, params, headers, ...props }: PostProps<T, R>): Query<R> {
+	public post<T, R = void>(props: PostPutPatchProps<T, R>): Query<R> {
+		return this.mutateWithValidation<T, R>("POST", props)
+	}
+
+	public put<T, R = void>(props: PostPutPatchProps<T, R>): Query<R> {
+		return this.mutateWithValidation<T, R>("PUT", props)
+	}
+
+	public patch<T, R = void>(props: PostPutPatchProps<T, R>): Query<R> {
+		return this.mutateWithValidation<T, R>("PATCH", props)
+	}
+
+	public delete<R>({ endpoint, params, headers, responseSchema }: GetProps<R>): Query<R> {
+		const baseUrl = this._checkBaseUrlNotDefined()
+
+		return new Query<R>(async () => {
+			const url = buildUrl({ base: baseUrl, endpoint, params })
+
+			const res = await this.fetchWithError(url, { method: "DELETE", headers: headers || {} })
+
+			if (responseSchema) {
+				const data = await res.text()
+				return validate({ schema: responseSchema, value: data })
+			}
+
+			return undefined as R
+		})
+	}
+
+
+	private fetchWithError(url: string, options: RequestInit): Promise<Response> {
+		return fetch(url, options)
+			.then(res => {
+				if (!res.ok) {
+					throw Error(`Fetch error: ${res.statusText}`)
+				}
+				return res
+			})
+			.catch(error => {
+				throw Error(`Fetch error: ${(error as Error).message}`)
+			})
+	}
+
+	private mutateWithValidation<T, R = void>(
+		method: "POST" | "PUT" | "PATCH", { endpoint, params, headers, ...props }: PostPutPatchProps<T, R>
+	): Query<R> {
 		const baseUrl = this._checkBaseUrlNotDefined()
 
 		return new Query<R>(async () => {
@@ -79,16 +115,7 @@ export class ZodFetchClient {
 				body = JSON.stringify(validatedBody)
 			}
 
-			const res = await fetch(url, { method: "POST", headers: headers || {}, body })
-				.then(res => {
-					if (!res.ok) {
-						throw Error(`Fetch error: ${res.statusText}`)
-					}
-					return res
-				})
-				.catch(error => {
-					throw Error(`Fetch error: ${(error as Error).message}`)
-				})
+			const res = await this.fetchWithError(url, { method, headers: headers || {}, body })
 
 			if (props.responseSchema) {
 				const data = await res.text()

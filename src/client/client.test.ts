@@ -188,3 +188,214 @@ test("post request without response schema", async () => {
 	const result = await createUser.fetch()
 	expect(result).toBeUndefined()
 })
+
+
+test("put request", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_put1")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_put1").put({
+		endpoint: "/users/1",
+		body: { name: "John" },
+		bodySchema: z.object({ name: z.string() }),
+		responseSchema: z.object({ id: z.number() })
+	})
+	const result = await updateUser.fetch()
+	expect(result).toEqual({ id: 1 })
+})
+
+test("put request without body", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_put2")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_put2").put({
+		endpoint: "/users/1",
+		responseSchema: z.object({ id: z.number() })
+	})
+	const result = await updateUser.fetch()
+	expect(result).toEqual({ id: 1 })
+})
+
+test("put request with body validation error", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_put3")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_put3").put({
+		endpoint: "/users/1",
+		// @ts-expect-error Testing invalid body
+		body: { name: 1 },
+		bodySchema: z.object({ name: z.string() }),
+		responseSchema: z.object({ id: z.number() })
+	})
+	await expect(updateUser.fetch()).rejects.toThrowError("Validation error: Expected string, received number")
+})
+
+test("put request with fetch error", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ ok: false, status: 500, statusText: "Internal Server Error" })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_put4")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_put4").put({
+		endpoint: "/users/1",
+		body: { name: "John" },
+		bodySchema: z.object({ name: z.string() }),
+		responseSchema: z.object({ id: z.number() })
+	})
+	await expect(updateUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+})
+
+test("put request without response schema", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_put5")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_put5").put({
+		endpoint: "/users/1",
+		body: { name: "John" },
+		bodySchema: z.object({ name: z.string() })
+	})
+	const result = await updateUser.fetch()
+	expect(result).toBeUndefined()
+})
+
+
+test("patch request", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_patch1")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_patch1").patch({
+		endpoint: "/users/1",
+		body: { name: "John" },
+		bodySchema: z.object({ name: z.string() }),
+		responseSchema: z.object({ id: z.number() })
+	})
+	const result = await updateUser.fetch()
+	expect(result).toEqual({ id: 1 })
+})
+
+test("patch request without body", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_patch2")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_patch2").patch({
+		endpoint: "/users/1",
+		responseSchema: z.object({ id: z.number() })
+	})
+	const result = await updateUser.fetch()
+	expect(result).toEqual({ id: 1 })
+})
+
+test("patch request with body validation error", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_patch3")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_patch3").patch({
+		endpoint: "/users/1",
+		// @ts-expect-error Testing invalid body
+		body: { name: 1 },
+		bodySchema: z.object({ name: z.string() }),
+		responseSchema: z.object({ id: z.number() })
+	})
+	await expect(updateUser.fetch()).rejects.toThrowError("Validation error: Expected string, received number")
+})
+
+test("patch request with fetch error", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ ok: false, status: 500, statusText: "Internal Server Error" })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_patch4")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_patch4").patch({
+		endpoint: "/users/1",
+		body: { name: "John" },
+		bodySchema: z.object({ name: z.string() }),
+		responseSchema: z.object({ id: z.number() })
+	})
+	await expect(updateUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+})
+
+test("patch request without response schema", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_patch5")
+		.baseUrl("https://example.com/api")
+	const updateUser = ZodFetchClient.use("example_patch5").patch({
+		endpoint: "/users/1",
+		body: { name: "John" },
+		bodySchema: z.object({ name: z.string() })
+	})
+	const result = await updateUser.fetch()
+	expect(result).toBeUndefined()
+})
+
+
+test("delete request", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_delete1")
+		.baseUrl("https://example.com/api")
+	const deleteUser = ZodFetchClient.use("example_delete1").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
+	const result = await deleteUser.fetch()
+	expect(result).toEqual({ id: 1 })
+})
+
+test("delete request with fetch error", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ ok: false, status: 500, statusText: "Internal Server Error" })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_delete2")
+		.baseUrl("https://example.com/api")
+	const deleteUser = ZodFetchClient.use("example_delete2").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
+	await expect(deleteUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+})
+
+test("delete request without response schema", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_delete3")
+		.baseUrl("https://example.com/api")
+	const deleteUser = ZodFetchClient.use("example_delete3").delete({ endpoint: "/users/1" })
+	const result = await deleteUser.fetch()
+	expect(result).toBeUndefined()
+})
+
+test("delete request with validation error", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: "1" }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	new ZodFetchClient("example_delete4")
+		.baseUrl("https://example.com/api")
+	const deleteUser = ZodFetchClient.use("example_delete4").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
+	await expect(deleteUser.fetch()).rejects.toThrowError("Validation error: Expected number, received string")
+})

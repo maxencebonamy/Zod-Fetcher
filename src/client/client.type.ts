@@ -1,10 +1,11 @@
 import type { UrlParams } from "#/url/url.type.js"
 import type { ZodSchema } from "zod"
 
+export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+
 export type Headers = Record<string, string>
 
-
-export type BaseQueryProps = {
+type BaseQueryProps = {
 	endpoint: string
 	params?: UrlParams
 	headers?: Headers
@@ -14,7 +15,7 @@ export type GetProps<R> = BaseQueryProps & {
 	responseSchema: ZodSchema<R>
 }
 
-export type PostProps<T, R = void> = BaseQueryProps & {
+export type PostPutPatchProps<T, R = void> = BaseQueryProps & {
 	responseSchema?: ZodSchema<R>
 } & ({
 	body: T
@@ -23,3 +24,7 @@ export type PostProps<T, R = void> = BaseQueryProps & {
 	body?: undefined
 	bodySchema?: undefined
 })
+
+export type DeleteProps<R> = BaseQueryProps & {
+	responseSchema?: ZodSchema<R>
+}
