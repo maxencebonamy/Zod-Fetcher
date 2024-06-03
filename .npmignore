@@ -5,4 +5,5 @@ src
 .gitignore
 pnpm-lock.yaml
 tsconfig.json
+tsconfig.*.json
 vitest.config.ts

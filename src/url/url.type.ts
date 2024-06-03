@@ -1,8 +1,8 @@
-export type UrlParams = Record<string, string>
+export type UrlParams = Record<string, string | { toString: () => string }>
 
 export type BuildUrlProps = {
 	base: string
-	route: string
+	endpoint: string
 	params?: UrlParams
 }
 

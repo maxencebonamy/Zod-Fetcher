@@ -1,1 +1,4 @@
-export { buildUrl } from "./url/index.js"
+import { ZodFetchClient } from "#/client/index.js"
+
+export default ZodFetchClient
+export { ZodFetchClient }
