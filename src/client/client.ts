@@ -1,5 +1,5 @@
-import type { PostPutPatchProps } from "#/client/client.type.js"
-import type { GetProps } from "#/client/index.js"
+import type { GetProps, PostProps, PutProps, PatchProps, DeleteProps } from "#/client/index.js"
+import type { MutateWithValidationProps } from "#/client/client.type.js"
 import { Query } from "#/query/index.js"
 import { buildUrl } from "#/url/index.js"
 import { validate } from "#/validation/index.js"
@@ -51,32 +51,32 @@ export class ZodFetchClient {
 		return new Query<R>(async () => {
 			const url = buildUrl({ base: baseUrl, endpoint, params })
 
-			const res = await this.fetchWithError(url, { method: "GET", headers: headers || {} })
+			const res = await this._fetchWithError(url, { method: "GET", headers: headers || {} })
 
 			const data = await res.text()
 			return validate({ schema: responseSchema, value: data })
 		})
 	}
 
-	public post<T, R = void>(props: PostPutPatchProps<T, R>): Query<R> {
-		return this.mutateWithValidation<T, R>("POST", props)
+	public post<T, R = void>(props: PostProps<T, R>): Query<R> {
+		return this._mutateWithValidation<T, R>({ method: "POST", ...props })
 	}
 
-	public put<T, R = void>(props: PostPutPatchProps<T, R>): Query<R> {
-		return this.mutateWithValidation<T, R>("PUT", props)
+	public put<T, R = void>(props: PutProps<T, R>): Query<R> {
+		return this._mutateWithValidation<T, R>({ method: "PUT", ...props })
 	}
 
-	public patch<T, R = void>(props: PostPutPatchProps<T, R>): Query<R> {
-		return this.mutateWithValidation<T, R>("PATCH", props)
+	public patch<T, R = void>(props: PatchProps<T, R>): Query<R> {
+		return this._mutateWithValidation<T, R>({ method: "PATCH", ...props })
 	}
 
-	public delete<R>({ endpoint, params, headers, responseSchema }: GetProps<R>): Query<R> {
+	public delete<R>({ endpoint, params, headers, responseSchema }: DeleteProps<R>): Query<R> {
 		const baseUrl = this._checkBaseUrlNotDefined()
 
 		return new Query<R>(async () => {
 			const url = buildUrl({ base: baseUrl, endpoint, params })
 
-			const res = await this.fetchWithError(url, { method: "DELETE", headers: headers || {} })
+			const res = await this._fetchWithError(url, { method: "DELETE", headers: headers || {} })
 
 			if (responseSchema) {
 				const data = await res.text()
@@ -88,7 +88,7 @@ export class ZodFetchClient {
 	}
 
 
-	private fetchWithError(url: string, options: RequestInit): Promise<Response> {
+	private _fetchWithError(url: string, options: RequestInit): Promise<Response> {
 		return fetch(url, options)
 			.then(res => {
 				if (!res.ok) {
@@ -101,9 +101,7 @@ export class ZodFetchClient {
 			})
 	}
 
-	private mutateWithValidation<T, R = void>(
-		method: "POST" | "PUT" | "PATCH", { endpoint, params, headers, ...props }: PostPutPatchProps<T, R>
-	): Query<R> {
+	private _mutateWithValidation<T, R = void>({ method, endpoint, params, headers, ...props }: MutateWithValidationProps<T, R>): Query<R> {
 		const baseUrl = this._checkBaseUrlNotDefined()
 
 		return new Query<R>(async () => {
@@ -115,7 +113,7 @@ export class ZodFetchClient {
 				body = JSON.stringify(validatedBody)
 			}
 
-			const res = await this.fetchWithError(url, { method, headers: headers || {}, body })
+			const res = await this._fetchWithError(url, { method, headers: headers || {}, body })
 
 			if (props.responseSchema) {
 				const data = await res.text()

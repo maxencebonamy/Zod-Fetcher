@@ -1,2 +1,2 @@
-export type { DeleteProps, GetProps, PostPutPatchProps } from "#/client/client.type.js"
+export type { GetProps, PostProps, PutProps, PatchProps, DeleteProps } from "#/client/client.type.js"
 export { ZodFetchClient } from "#/client/client.js"
