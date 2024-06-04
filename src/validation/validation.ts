@@ -1,4 +1,4 @@
-import { ZodFetchError, ErrorType } from "#/error/index.js"
+import { ZodFetchError, ZodFetchErrorType } from "#/error/index.js"
 import type { ValidateFunction } from "#/validation/validation.type.js"
 
 
@@ -19,5 +19,5 @@ export const validate: ValidateFunction = ({ schema, value }) => {
 
 	// If the validation fails, throw an error with all the error messages
 	const messages = result.error.errors.map(error => error.message)
-	throw new ZodFetchError(ErrorType.VALIDATION, messages.join(", "))
+	throw new ZodFetchError(ZodFetchErrorType.VALIDATION, messages.join(", "))
 }

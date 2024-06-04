@@ -1,2 +1,2 @@
 export { ZodFetchError } from "#/error/error.js"
-export { ErrorType } from "#/error/error.type.js"
+export { ZodFetchErrorType } from "#/error/error.type.js"

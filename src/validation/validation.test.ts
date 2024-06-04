@@ -1,7 +1,7 @@
 import { expect, test } from "vitest"
 import { z } from "zod"
 import { validate } from "#/validation/index.js"
-import { ErrorType, ZodFetchError } from "#/error/index.js"
+import { ZodFetchErrorType, ZodFetchError } from "#/error/index.js"
 
 
 test("validate a valid value", () => {
@@ -15,7 +15,7 @@ test("validate an invalid value", () => {
 	const schema = z.string()
 	const value = 123
 	expect(() => validate({ schema, value })).toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected string, received number")
 	)
 })
 
@@ -34,7 +34,7 @@ test("validate an invalid value with a custom error message", () => {
 	})
 	const value = "hello"
 	expect(() => validate({ schema, value })).toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "value must be longer than 5 characters")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "value must be longer than 5 characters")
 	)
 })
 
@@ -57,7 +57,7 @@ test("validate an invalid value with a custom error message and path", () => {
 	})
 	const value = { name: "hello" }
 	expect(() => validate({ schema, value })).toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "name must be longer than 5 characters")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "name must be longer than 5 characters")
 	)
 })
 
@@ -72,6 +72,6 @@ test("validate an invalid value as an object string", () => {
 	const schema = z.object({ name: z.string() })
 	const value = JSON.stringify({ name: 123 })
 	expect(() => validate({ schema, value })).toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected string, received number")
 	)
 })

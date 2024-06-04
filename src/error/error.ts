@@ -1,10 +1,10 @@
-import type { ErrorType } from "#/error/error.type"
+import type { ZodFetchErrorType } from "#/error/error.type"
 
 export class ZodFetchError extends Error {
 
-	public type: ErrorType
+	public type: ZodFetchErrorType
 
-	constructor(type: ErrorType, message: string) {
+	constructor(type: ZodFetchErrorType, message: string) {
 		super(message)
 		this.name = this.constructor.name
 		this.type = type

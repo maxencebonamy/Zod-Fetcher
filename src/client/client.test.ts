@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest"
 import { ZodFetchClient } from "#/client/index.js"
 import { z } from "zod"
-import { ErrorType, ZodFetchError } from "#/error"
+import { ZodFetchErrorType, ZodFetchError } from "#/error"
 
 type FakeResponseRequest = {
 	ok?: boolean
@@ -95,7 +95,7 @@ test("get request with validation error", async () => {
 		.baseUrl("https://example.com/api")
 	const getUser = ZodFetchClient.use("example_get3").get({ endpoint: "/users", responseSchema: z.object({ id: z.number() }) })
 	await expect(getUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected number, received string")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected number, received string")
 	)
 })
 
@@ -108,7 +108,7 @@ test("get request with fetch error", async () => {
 		.baseUrl("https://example.com/api")
 	const getUser = ZodFetchClient.use("example_get4").get({ endpoint: "/users", responseSchema: z.object({ id: z.number() }) })
 	await expect(getUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+		new ZodFetchError(ZodFetchErrorType.FETCH, "500 Internal Server Error")
 	)
 })
 
@@ -160,7 +160,7 @@ test("post request with body validation error", async () => {
 		responseSchema: z.object({ id: z.number() })
 	})
 	await expect(createUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected string, received number")
 	)
 })
 
@@ -178,7 +178,7 @@ test("post request with fetch error", async () => {
 		responseSchema: z.object({ id: z.number() })
 	})
 	await expect(createUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+		new ZodFetchError(ZodFetchErrorType.FETCH, "500 Internal Server Error")
 	)
 })
 
@@ -246,7 +246,7 @@ test("put request with body validation error", async () => {
 		responseSchema: z.object({ id: z.number() })
 	})
 	await expect(updateUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected string, received number")
 	)
 })
 
@@ -264,7 +264,7 @@ test("put request with fetch error", async () => {
 		responseSchema: z.object({ id: z.number() })
 	})
 	await expect(updateUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+		new ZodFetchError(ZodFetchErrorType.FETCH, "500 Internal Server Error")
 	)
 })
 
@@ -332,7 +332,7 @@ test("patch request with body validation error", async () => {
 		responseSchema: z.object({ id: z.number() })
 	})
 	await expect(updateUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected string, received number")
 	)
 })
 
@@ -350,7 +350,7 @@ test("patch request with fetch error", async () => {
 		responseSchema: z.object({ id: z.number() })
 	})
 	await expect(updateUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+		new ZodFetchError(ZodFetchErrorType.FETCH, "500 Internal Server Error")
 	)
 })
 
@@ -392,7 +392,7 @@ test("delete request with fetch error", async () => {
 		.baseUrl("https://example.com/api")
 	const deleteUser = ZodFetchClient.use("example_delete2").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
 	await expect(deleteUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+		new ZodFetchError(ZodFetchErrorType.FETCH, "500 Internal Server Error")
 	)
 })
 
@@ -417,6 +417,6 @@ test("delete request with validation error", async () => {
 		.baseUrl("https://example.com/api")
 	const deleteUser = ZodFetchClient.use("example_delete4").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
 	await expect(deleteUser.fetch()).rejects.toThrowError(
-		new ZodFetchError(ErrorType.VALIDATION, "Expected number, received string")
+		new ZodFetchError(ZodFetchErrorType.VALIDATION, "Expected number, received string")
 	)
 })
