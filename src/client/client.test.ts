@@ -1,6 +1,7 @@
 import { expect, test, vi } from "vitest"
 import { ZodFetchClient } from "#/client/index.js"
 import { z } from "zod"
+import { ErrorType, ZodFetchError } from "#/error"
 
 type FakeResponseRequest = {
 	ok?: boolean
@@ -93,7 +94,9 @@ test("get request with validation error", async () => {
 	new ZodFetchClient("example_get3")
 		.baseUrl("https://example.com/api")
 	const getUser = ZodFetchClient.use("example_get3").get({ endpoint: "/users", responseSchema: z.object({ id: z.number() }) })
-	await expect(getUser.fetch()).rejects.toThrowError("Validation error: Expected number, received string")
+	await expect(getUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected number, received string")
+	)
 })
 
 test("get request with fetch error", async () => {
@@ -104,7 +107,9 @@ test("get request with fetch error", async () => {
 	new ZodFetchClient("example_get4")
 		.baseUrl("https://example.com/api")
 	const getUser = ZodFetchClient.use("example_get4").get({ endpoint: "/users", responseSchema: z.object({ id: z.number() }) })
-	await expect(getUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+	await expect(getUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+	)
 })
 
 
@@ -154,7 +159,9 @@ test("post request with body validation error", async () => {
 		bodySchema: z.object({ name: z.string() }),
 		responseSchema: z.object({ id: z.number() })
 	})
-	await expect(createUser.fetch()).rejects.toThrowError("Validation error: Expected string, received number")
+	await expect(createUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+	)
 })
 
 test("post request with fetch error", async () => {
@@ -170,7 +177,9 @@ test("post request with fetch error", async () => {
 		bodySchema: z.object({ name: z.string() }),
 		responseSchema: z.object({ id: z.number() })
 	})
-	await expect(createUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+	await expect(createUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+	)
 })
 
 test("post request without response schema", async () => {
@@ -236,7 +245,9 @@ test("put request with body validation error", async () => {
 		bodySchema: z.object({ name: z.string() }),
 		responseSchema: z.object({ id: z.number() })
 	})
-	await expect(updateUser.fetch()).rejects.toThrowError("Validation error: Expected string, received number")
+	await expect(updateUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+	)
 })
 
 test("put request with fetch error", async () => {
@@ -252,7 +263,9 @@ test("put request with fetch error", async () => {
 		bodySchema: z.object({ name: z.string() }),
 		responseSchema: z.object({ id: z.number() })
 	})
-	await expect(updateUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+	await expect(updateUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+	)
 })
 
 test("put request without response schema", async () => {
@@ -318,7 +331,9 @@ test("patch request with body validation error", async () => {
 		bodySchema: z.object({ name: z.string() }),
 		responseSchema: z.object({ id: z.number() })
 	})
-	await expect(updateUser.fetch()).rejects.toThrowError("Validation error: Expected string, received number")
+	await expect(updateUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+	)
 })
 
 test("patch request with fetch error", async () => {
@@ -334,7 +349,9 @@ test("patch request with fetch error", async () => {
 		bodySchema: z.object({ name: z.string() }),
 		responseSchema: z.object({ id: z.number() })
 	})
-	await expect(updateUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+	await expect(updateUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+	)
 })
 
 test("patch request without response schema", async () => {
@@ -374,7 +391,9 @@ test("delete request with fetch error", async () => {
 	new ZodFetchClient("example_delete2")
 		.baseUrl("https://example.com/api")
 	const deleteUser = ZodFetchClient.use("example_delete2").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
-	await expect(deleteUser.fetch()).rejects.toThrowError("Fetch error: Internal Server Error")
+	await expect(deleteUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.FETCH, "500 Internal Server Error")
+	)
 })
 
 test("delete request without response schema", async () => {
@@ -397,5 +416,7 @@ test("delete request with validation error", async () => {
 	new ZodFetchClient("example_delete4")
 		.baseUrl("https://example.com/api")
 	const deleteUser = ZodFetchClient.use("example_delete4").delete({ endpoint: "/users/1", responseSchema: z.object({ id: z.number() }) })
-	await expect(deleteUser.fetch()).rejects.toThrowError("Validation error: Expected number, received string")
+	await expect(deleteUser.fetch()).rejects.toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected number, received string")
+	)
 })

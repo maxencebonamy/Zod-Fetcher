@@ -1,4 +1,4 @@
-import type { BuildUrlFunction } from "#/url/index.js"
+import type { BuildUrlFunction } from "#/url/url.type.js"
 
 
 export const buildUrl: BuildUrlFunction = ({ base, endpoint, params }) => {

@@ -1,8 +1,8 @@
-import type { ZodSchema } from "zod"
+import type { ZodType } from "zod"
 
 
 export type ValidateFunctionProps<T> = {
-	schema: ZodSchema<T>
+	schema: ZodType<T>
 	value: unknown
 }
 

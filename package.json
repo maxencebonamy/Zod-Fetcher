@@ -1,13 +1,12 @@
 {
 	"name": "zod-rest-fetch",
-	"version": "1.0.0-beta.5",
+	"version": "1.0.0-beta.6",
 	"description": "Fetch utilities for REST APIs using Zod",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"type": "module",
 	"scripts": {
-		"clean": "rimraf dist",
-		"build": "pnpm run clean && tsc --project tsconfig.build.json && tsc-alias",
+		"build": "tsup",
 		"build:prod": "pnpm run lint && pnpm run test && pnpm run build",
 		"start": "node dist/index.js",
 		"lint": "eslint .",
@@ -15,7 +14,14 @@
 		"test": "vitest run",
 		"test:watch": "vitest"
 	},
-	"keywords": ["zod", "rest", "fetch", "api", "utilities", "typescript"],
+	"keywords": [
+		"zod",
+		"rest",
+		"fetch",
+		"api",
+		"utilities",
+		"typescript"
+	],
 	"author": "Maxence Bonamy",
 	"license": "ISC",
 	"dependencies": {
@@ -25,8 +31,7 @@
 		"@maxencebonamy/eslint-plugin": "1.0.1",
 		"@types/node": "^20.13.0",
 		"eslint": "8.57.0",
-		"rimraf": "^5.0.7",
-		"tsc-alias": "^1.8.10",
+		"tsup": "^8.1.0",
 		"typescript": "^5.4.5",
 		"vitest": "^1.6.0"
 	},

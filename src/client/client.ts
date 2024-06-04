@@ -1,5 +1,7 @@
-import type { GetProps, PostProps, PutProps, PatchProps, DeleteProps } from "#/client/index.js"
-import type { MutateWithValidationProps } from "#/client/client.type.js"
+import {
+	type MutateWithValidationProps, type GetProps, type PostProps, type PutProps, type PatchProps, type DeleteProps
+} from "#/client/client.type.js"
+import { ErrorType, ZodFetchError } from "#/error/index.js"
 import { Query } from "#/query/index.js"
 import { buildUrl } from "#/url/index.js"
 import { validate } from "#/validation/index.js"
@@ -92,12 +94,12 @@ export class ZodFetchClient {
 		return fetch(url, options)
 			.then(res => {
 				if (!res.ok) {
-					throw Error(`Fetch error: ${res.statusText}`)
+					throw new ZodFetchError(ErrorType.FETCH, `${res.status} ${res.statusText}`)
 				}
 				return res
 			})
 			.catch(error => {
-				throw Error(`Fetch error: ${(error as Error).message}`)
+				throw new ZodFetchError(ErrorType.FETCH, (error as Error).message)
 			})
 	}
 

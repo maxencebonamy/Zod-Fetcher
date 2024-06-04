@@ -1,3 +1,4 @@
+import { ZodFetchError, ErrorType } from "#/error/index.js"
 import type { ValidateFunctionProps } from "#/validation/validation.type.js"
 
 
@@ -18,5 +19,5 @@ export const validate = <T>({ schema, value }: ValidateFunctionProps<T>): T => {
 
 	// If the validation fails, throw an error with all the error messages
 	const messages = result.error.errors.map(error => error.message)
-	throw new Error(`Validation error: ${messages.join("\n")}`)
+	throw new ZodFetchError(ErrorType.VALIDATION, messages.join(", "))
 }

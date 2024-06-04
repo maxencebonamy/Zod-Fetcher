@@ -1,5 +1,5 @@
 import type { UrlParams } from "#/url/url.type.js"
-import type { ZodSchema } from "zod"
+import type { ZodType } from "zod"
 
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -12,14 +12,14 @@ type BaseQueryProps = {
 }
 
 export type GetProps<R> = BaseQueryProps & {
-	responseSchema: ZodSchema<R>
+	responseSchema: ZodType<R>
 }
 
 export type PostProps<T, R = void> = BaseQueryProps & {
-	responseSchema?: ZodSchema<R>
+	responseSchema?: ZodType<R>
 } & ({
 	body: T
-	bodySchema: ZodSchema<T>
+	bodySchema: ZodType<T>
 } | {
 	body?: undefined
 	bodySchema?: undefined
@@ -30,7 +30,7 @@ export type PutProps<T, R = void> = PostProps<T, R>
 export type PatchProps<T, R = void> = PostProps<T, R>
 
 export type DeleteProps<R> = BaseQueryProps & {
-	responseSchema?: ZodSchema<R>
+	responseSchema?: ZodType<R>
 }
 
 export type MutateWithValidationProps<T, R = void> = {

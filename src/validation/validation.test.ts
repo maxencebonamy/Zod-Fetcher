@@ -1,6 +1,7 @@
 import { expect, test } from "vitest"
-import { validate } from "#/validation/index.js"
 import { z } from "zod"
+import { validate } from "#/validation/index.js"
+import { ErrorType, ZodFetchError } from "#/error/index.js"
 
 
 test("validate a valid value", () => {
@@ -13,7 +14,9 @@ test("validate a valid value", () => {
 test("validate an invalid value", () => {
 	const schema = z.string()
 	const value = 123
-	expect(() => validate({ schema, value })).toThrow("Validation error: Expected string, received number")
+	expect(() => validate({ schema, value })).toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+	)
 })
 
 test("validate a valid value with a custom error message", () => {
@@ -30,7 +33,9 @@ test("validate an invalid value with a custom error message", () => {
 		message: "value must be longer than 5 characters"
 	})
 	const value = "hello"
-	expect(() => validate({ schema, value })).toThrow("Validation error: value must be longer than 5 characters")
+	expect(() => validate({ schema, value })).toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "value must be longer than 5 characters")
+	)
 })
 
 test("validate a valid value with a custom error message and path", () => {
@@ -51,7 +56,9 @@ test("validate an invalid value with a custom error message and path", () => {
 		})
 	})
 	const value = { name: "hello" }
-	expect(() => validate({ schema, value })).toThrow("Validation error: name must be longer than 5 characters")
+	expect(() => validate({ schema, value })).toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "name must be longer than 5 characters")
+	)
 })
 
 test("validate a valid value as an object string", () => {
@@ -64,5 +71,7 @@ test("validate a valid value as an object string", () => {
 test("validate an invalid value as an object string", () => {
 	const schema = z.object({ name: z.string() })
 	const value = JSON.stringify({ name: 123 })
-	expect(() => validate({ schema, value })).toThrow("Validation error: Expected string, received number")
+	expect(() => validate({ schema, value })).toThrowError(
+		new ZodFetchError(ErrorType.VALIDATION, "Expected string, received number")
+	)
 })
