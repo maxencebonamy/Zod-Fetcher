@@ -1,8 +1,8 @@
 import { ZodFetchError, ErrorType } from "#/error/index.js"
-import type { ValidateFunctionProps } from "#/validation/validation.type.js"
+import type { ValidateFunction } from "#/validation/validation.type.js"
 
 
-export const validate = <T>({ schema, value }: ValidateFunctionProps<T>): T => {
+export const validate: ValidateFunction = ({ schema, value }) => {
 	// Try to parse the value as JSON
 	if (typeof value === "string") {
 		try {
