@@ -15,7 +15,7 @@ export type GetProps<R> = BaseQueryProps & {
 	responseSchema: ZodType<R>
 }
 
-export type PostProps<T, R = void> = BaseQueryProps & {
+export type CreateOrEditProps<T, R = void> = BaseQueryProps & {
 	responseSchema?: ZodType<R>
 } & ({
 	body: T
@@ -25,14 +25,8 @@ export type PostProps<T, R = void> = BaseQueryProps & {
 	bodySchema?: undefined
 })
 
-export type PutProps<T, R = void> = PostProps<T, R>
-
-export type PatchProps<T, R = void> = PostProps<T, R>
-
 export type DeleteProps<R> = BaseQueryProps & {
 	responseSchema?: ZodType<R>
 }
 
-export type MutateWithValidationProps<T, R = void> = {
-	method: "POST" | "PUT" | "PATCH"
-} & (PostProps<T, R> | PutProps<T, R> | PatchProps<T, R>)
+export type RequestHandler = (props: BaseQueryProps) => BaseQueryProps

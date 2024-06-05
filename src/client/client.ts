@@ -1,6 +1,4 @@
-import {
-	type MutateWithValidationProps, type GetProps, type PostProps, type PutProps, type PatchProps, type DeleteProps
-} from "#/client/client.type.js"
+import type { GetProps, CreateOrEditProps, DeleteProps, RequestHandler } from "#/client/client.type.js"
 import { ZodFetchErrorType, ZodFetchError } from "#/error/index.js"
 import { Query } from "#/query/index.js"
 import { buildUrl } from "#/url/index.js"
@@ -9,10 +7,10 @@ import { validate } from "#/validation/index.js"
 
 export class ZodFetchClient {
 
-	private static _register: Record<string, ZodFetchClient> = {}
+	private static _clients: Record<string, ZodFetchClient> = {}
 
 	public static use(key: string): ZodFetchClient {
-		const client = ZodFetchClient._register[key]
+		const client = ZodFetchClient._clients[key]
 		if (!client) {
 			throw Error(`Client with key ${key} does not exist`)
 		}
@@ -24,18 +22,25 @@ export class ZodFetchClient {
 
 	private _baseUrl?: string
 
+	private _globalPreRequestHandler?: RequestHandler
+
 
 	constructor(_key: string) {
-		if (ZodFetchClient._register[_key]) {
+		if (ZodFetchClient._clients[_key]) {
 			throw Error(`Client with key ${_key} already exists`)
 		}
 
 		this._key = _key
-		ZodFetchClient._register[_key] = this
+		ZodFetchClient._clients[_key] = this
 	}
 
 	baseUrl(baseUrl: string): ZodFetchClient {
 		this._baseUrl = baseUrl
+		return this
+	}
+
+	preRequestHandler(handler: RequestHandler): ZodFetchClient {
+		this._globalPreRequestHandler = handler
 		return this
 	}
 
@@ -47,10 +52,19 @@ export class ZodFetchClient {
 	}
 
 
-	public get<R>({ endpoint, params, headers, responseSchema }: GetProps<R>): Query<R> {
+	public get<A extends unknown[], R>(props: GetProps<R> | ((...args: A) => GetProps<R>)): Query<A, R> {
 		const baseUrl = this._checkBaseUrlNotDefined()
 
-		return new Query<R>(async () => {
+		return new Query<A, R>(async (...args) => {
+			if (typeof props === "function") {
+				props = props(...args)
+			}
+
+			if (this._globalPreRequestHandler) {
+				props = { ...props, ...this._globalPreRequestHandler?.(props) }
+			}
+			const { endpoint, responseSchema, headers, params } = props
+
 			const url = buildUrl({ base: baseUrl, endpoint, params })
 
 			const res = await this._fetchWithError(url, { method: "GET", headers: headers || {} })
@@ -60,22 +74,37 @@ export class ZodFetchClient {
 		})
 	}
 
-	public post<T, R = void>(props: PostProps<T, R>): Query<R> {
-		return this._mutateWithValidation<T, R>({ method: "POST", ...props })
+	public post<A extends unknown[], T, R = void>(
+		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
+	): Query<A, R> {
+		return this._mutateWithValidation<A, T, R>("POST", props)
 	}
 
-	public put<T, R = void>(props: PutProps<T, R>): Query<R> {
-		return this._mutateWithValidation<T, R>({ method: "PUT", ...props })
+	public put<A extends unknown[], T, R = void>(
+		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
+	): Query<A, R> {
+		return this._mutateWithValidation<A, T, R>("PUT", props)
 	}
 
-	public patch<T, R = void>(props: PatchProps<T, R>): Query<R> {
-		return this._mutateWithValidation<T, R>({ method: "PATCH", ...props })
+	public patch<A extends unknown[], T, R = void>(
+		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
+	): Query<A, R> {
+		return this._mutateWithValidation<A, T, R>("PATCH", props)
 	}
 
-	public delete<R>({ endpoint, params, headers, responseSchema }: DeleteProps<R>): Query<R> {
+	public delete<A extends unknown[], R>(
+		props: DeleteProps<R> | ((...args: A) => DeleteProps<R>)
+	): Query<A, R> {
 		const baseUrl = this._checkBaseUrlNotDefined()
 
-		return new Query<R>(async () => {
+		return new Query<A, R>(async (...args: A) => {
+			if (typeof props === "function") {
+				props = props(...args)
+			}
+			if (this._globalPreRequestHandler) {
+				props = { ...props, ...this._globalPreRequestHandler?.(props) }
+			}
+			const { endpoint, responseSchema, headers, params } = props
 			const url = buildUrl({ base: baseUrl, endpoint, params })
 
 			const res = await this._fetchWithError(url, { method: "DELETE", headers: headers || {} })
@@ -90,7 +119,7 @@ export class ZodFetchClient {
 	}
 
 
-	private _fetchWithError(url: string, options: RequestInit): Promise<Response> {
+	private async _fetchWithError(url: string, options: RequestInit): Promise<Response> {
 		return fetch(url, options)
 			.then(res => {
 				if (!res.ok) {
@@ -103,10 +132,21 @@ export class ZodFetchClient {
 			})
 	}
 
-	private _mutateWithValidation<T, R = void>({ method, endpoint, params, headers, ...props }: MutateWithValidationProps<T, R>): Query<R> {
+	private _mutateWithValidation<A extends unknown[], T, R = void>(
+		method: "POST" | "PUT" | "PATCH",
+		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
+	): Query<A, R> {
 		const baseUrl = this._checkBaseUrlNotDefined()
 
-		return new Query<R>(async () => {
+		return new Query<A, R>(async (...args) => {
+			if (typeof props === "function") {
+				props = props(...args)
+			}
+
+			if (this._globalPreRequestHandler) {
+				props = { ...props, ...this._globalPreRequestHandler?.(props) }
+			}
+			const { endpoint, headers, params } = props
 			const url = buildUrl({ base: baseUrl, endpoint, params })
 
 			let body: string | undefined
