@@ -1,16 +1,15 @@
-import type { GetProps, CreateOrEditProps, DeleteProps, RequestHandler } from "#/client/client.type.js"
-import { ZodFetchErrorType, ZodFetchError } from "#/error/index.js"
-import { Query } from "#/query/index.js"
+import type { GetProps, CreateOrEditProps, DeleteProps, RequestHandler, Query, ZodFetcherProps } from "#/client/client.type.js"
 import { buildUrl } from "#/url/index.js"
+import { fetchWithError, type MaybeFunction } from "#/utils/index.js"
 import { validate } from "#/validation/index.js"
 
 
-export class ZodFetchClient {
+export class ZodFetcher {
 
-	private static _clients: Record<string, ZodFetchClient> = {}
+	private static _clients: Record<string, ZodFetcher> = {}
 
-	public static use(key: string): ZodFetchClient {
-		const client = ZodFetchClient._clients[key]
+	public static use(key: string): ZodFetcher {
+		const client = ZodFetcher._clients[key]
 		if (!client) {
 			throw Error(`Client with key ${key} does not exist`)
 		}
@@ -18,136 +17,79 @@ export class ZodFetchClient {
 	}
 
 
-	private _key: string
+	private baseUrl: string
 
-	private _baseUrl?: string
-
-	private _globalPreRequestHandler?: RequestHandler
+	private globalRequestHandler?: RequestHandler
 
 
-	constructor(_key: string) {
-		if (ZodFetchClient._clients[_key]) {
-			throw Error(`Client with key ${_key} already exists`)
+	constructor({ key, baseUrl, globalRequestHandler }: ZodFetcherProps) {
+		if (ZodFetcher._clients[key]) {
+			throw Error(`Client with key ${key} already exists`)
 		}
 
-		this._key = _key
-		ZodFetchClient._clients[_key] = this
+		this.baseUrl = baseUrl
+		this.globalRequestHandler = globalRequestHandler
+		ZodFetcher._clients[key] = this
 	}
 
-	baseUrl(baseUrl: string): ZodFetchClient {
-		this._baseUrl = baseUrl
-		return this
-	}
 
-	preRequestHandler(handler: RequestHandler): ZodFetchClient {
-		this._globalPreRequestHandler = handler
-		return this
-	}
+	public get<A extends unknown[], R>(props: MaybeFunction<A, GetProps<R>>): Query<A, R> {
+		return async (...args: A) => {
+			if (typeof props === "function") props = props(...args)
+			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
 
-	private _checkBaseUrlNotDefined(): string {
-		if (!this._baseUrl) {
-			throw Error(`Base URL is not defined for ${this._key} client`)
+			const { endpoint, responseSchema, headers, params, responseHandler } = props
+			const url = buildUrl({ base: this.baseUrl, endpoint, params })
+			const data = await fetchWithError(url, { method: "GET", headers: headers || {} })
+
+			let validatedData = validate({ schema: responseSchema, value: data })
+			if (responseHandler) validatedData = responseHandler(validatedData)
+			return validatedData
 		}
-		return this._baseUrl
 	}
 
-
-	public get<A extends unknown[], R>(props: GetProps<R> | ((...args: A) => GetProps<R>)): Query<A, R> {
-		const baseUrl = this._checkBaseUrlNotDefined()
-
-		return new Query<A, R>(async (...args) => {
-			if (typeof props === "function") {
-				props = props(...args)
-			}
-
-			if (this._globalPreRequestHandler) {
-				props = { ...props, ...this._globalPreRequestHandler?.(props) }
-			}
-			const { endpoint, responseSchema, headers, params } = props
-
-			const url = buildUrl({ base: baseUrl, endpoint, params })
-
-			const res = await this._fetchWithError(url, { method: "GET", headers: headers || {} })
-
-			const data = await res.text()
-			return validate({ schema: responseSchema, value: data })
-		})
+	public post<A extends unknown[], T, R = void>(props: MaybeFunction<A, CreateOrEditProps<T, R>>): Query<A, R> {
+		return this.createOrEdit<A, T, R>("POST", props)
 	}
 
-	public post<A extends unknown[], T, R = void>(
-		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
-	): Query<A, R> {
-		return this._mutateWithValidation<A, T, R>("POST", props)
+	public put<A extends unknown[], T, R = void>(props: MaybeFunction<A, CreateOrEditProps<T, R>>): Query<A, R> {
+		return this.createOrEdit<A, T, R>("PUT", props)
 	}
 
-	public put<A extends unknown[], T, R = void>(
-		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
-	): Query<A, R> {
-		return this._mutateWithValidation<A, T, R>("PUT", props)
+	public patch<A extends unknown[], T, R = void>(props: MaybeFunction<A, CreateOrEditProps<T, R>>): Query<A, R> {
+		return this.createOrEdit<A, T, R>("PATCH", props)
 	}
 
-	public patch<A extends unknown[], T, R = void>(
-		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
-	): Query<A, R> {
-		return this._mutateWithValidation<A, T, R>("PATCH", props)
-	}
+	public delete<A extends unknown[], R>(props: MaybeFunction<A, DeleteProps<R>>): Query<A, R> {
+		return async (...args: A) => {
+			if (typeof props === "function") props = props(...args)
+			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
 
-	public delete<A extends unknown[], R>(
-		props: DeleteProps<R> | ((...args: A) => DeleteProps<R>)
-	): Query<A, R> {
-		const baseUrl = this._checkBaseUrlNotDefined()
-
-		return new Query<A, R>(async (...args: A) => {
-			if (typeof props === "function") {
-				props = props(...args)
-			}
-			if (this._globalPreRequestHandler) {
-				props = { ...props, ...this._globalPreRequestHandler?.(props) }
-			}
-			const { endpoint, responseSchema, headers, params } = props
-			const url = buildUrl({ base: baseUrl, endpoint, params })
-
-			const res = await this._fetchWithError(url, { method: "DELETE", headers: headers || {} })
+			const { endpoint, responseSchema, headers, params, responseHandler } = props
+			const url = buildUrl({ base: this.baseUrl, endpoint, params })
+			const data = await fetchWithError(url, { method: "DELETE", headers: headers || {} })
 
 			if (responseSchema) {
-				const data = await res.text()
-				return validate({ schema: responseSchema, value: data })
+				let validatedData = validate({ schema: responseSchema, value: data })
+				if (responseHandler) validatedData = responseHandler(validatedData)
+				return validatedData
 			}
 
 			return undefined as R
-		})
+		}
 	}
 
 
-	private async _fetchWithError(url: string, options: RequestInit): Promise<Response> {
-		return fetch(url, options)
-			.then(res => {
-				if (!res.ok) {
-					throw new ZodFetchError(ZodFetchErrorType.FETCH, `${res.status} ${res.statusText}`)
-				}
-				return res
-			})
-			.catch(error => {
-				throw new ZodFetchError(ZodFetchErrorType.FETCH, (error as Error).message)
-			})
-	}
-
-	private _mutateWithValidation<A extends unknown[], T, R = void>(
+	private createOrEdit<A extends unknown[], T, R = void>(
 		method: "POST" | "PUT" | "PATCH",
-		props: CreateOrEditProps<T, R> | ((...args: A) => CreateOrEditProps<T, R>)
+		props: MaybeFunction<A, CreateOrEditProps<T, R>>
 	): Query<A, R> {
-		const baseUrl = this._checkBaseUrlNotDefined()
+		return async (...args: A) => {
+			if (typeof props === "function") props = props(...args)
+			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
 
-		return new Query<A, R>(async (...args) => {
-			if (typeof props === "function") {
-				props = props(...args)
-			}
-
-			if (this._globalPreRequestHandler) {
-				props = { ...props, ...this._globalPreRequestHandler?.(props) }
-			}
-			const { endpoint, headers, params } = props
-			const url = buildUrl({ base: baseUrl, endpoint, params })
+			const { endpoint, headers, params, responseSchema, responseHandler } = props
+			const url = buildUrl({ base: this.baseUrl, endpoint, params })
 
 			let body: string | undefined
 			if (props.bodySchema) {
@@ -155,17 +97,18 @@ export class ZodFetchClient {
 				body = JSON.stringify(validatedBody)
 			}
 
-			const res = await this._fetchWithError(url, { method, headers: headers || {}, body })
+			const data = await fetchWithError(url, { method, headers: headers || {}, body })
 
-			if (props.responseSchema) {
-				const data = await res.text()
-				return validate({ schema: props.responseSchema, value: data })
+			if (responseSchema) {
+				let validatedData = validate({ schema: responseSchema, value: data })
+				if (responseHandler) validatedData = responseHandler(validatedData)
+				return validatedData
 			}
 
 			return undefined as R
-		})
+		}
 	}
 
 }
 
-export const createZodFetchClient = (key: string): ZodFetchClient => new ZodFetchClient(key)
+export const createZodFetcher = (props: ZodFetcherProps): ZodFetcher => new ZodFetcher(props)

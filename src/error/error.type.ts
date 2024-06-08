@@ -1,4 +1,4 @@
-export enum ZodFetchErrorType {
+export enum ZodFetcherErrorType {
 	FETCH,
 	VALIDATION
 }

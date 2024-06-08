@@ -35,10 +35,16 @@ const getAllPosts = ZodFetchClient.use("example").get({
 	endpoint: "/posts",
 	responseSchema: postSchema.array()
 })
+
+const getPostById = ZodFetchClient.use("example").get((id: number) => ({
+	endpoint: `/posts/${id}`,
+	responseSchema: postSchema
+}))
 ```
 
 3. Use the request functions to make the requests.
 
 ```typescript
 const posts = await getAllPosts.fetch()
+const post = await getPostById.fetch(1)
 ```

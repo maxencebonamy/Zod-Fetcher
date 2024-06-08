@@ -1,10 +1,18 @@
 {
-	"name": "zod-rest-fetch",
-	"version": "1.0.0-beta.7",
-	"description": "Fetch utilities for REST APIs using Zod",
+	"name": "zod-fetcher",
+	"version": "1.0.0-beta.1",
+	"description": "A simple utility to automatically wrap fetches with Zod schemas, for both request and response.",
 	"main": "dist/index.js",
+	"module": "dist/index.mjs",
 	"types": "dist/index.d.ts",
 	"type": "module",
+	"exports": {
+		".": {
+			"require": "./dist/index.js",
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
 	"scripts": {
 		"build": "tsup",
 		"build:prod": "pnpm run lint && pnpm run test && pnpm run build",
@@ -12,7 +20,8 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
 	},
 	"keywords": [
 		"zod",
@@ -33,6 +42,7 @@
 	"devDependencies": {
 		"@maxencebonamy/eslint-plugin": "1.0.1",
 		"@types/node": "^20.13.0",
+		"@vitest/coverage-v8": "^1.6.0",
 		"eslint": "8.57.0",
 		"tsup": "^8.1.0",
 		"typescript": "^5.4.5",

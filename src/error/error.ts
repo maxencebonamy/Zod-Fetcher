@@ -1,13 +1,17 @@
-import type { ZodFetchErrorType } from "#/error/error.type"
+import { ZodFetcherErrorType } from "#/error/error.type"
 
-export class ZodFetchError extends Error {
+export class ZodFetcherError extends Error {
 
-	public type: ZodFetchErrorType
+	public type: ZodFetcherErrorType
 
-	constructor(type: ZodFetchErrorType, message: string) {
+	constructor(type: ZodFetcherErrorType, message: string) {
 		super(message)
 		this.name = this.constructor.name
 		this.type = type
 	}
 
 }
+
+export const createFetchError = (message: string): ZodFetcherError => new ZodFetcherError(ZodFetcherErrorType.FETCH, message)
+
+export const createValidationError = (message: string): ZodFetcherError => new ZodFetcherError(ZodFetcherErrorType.VALIDATION, message)

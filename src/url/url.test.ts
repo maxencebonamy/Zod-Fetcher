@@ -23,6 +23,20 @@ test("url with base and route", () => {
 	expect(result).toBe("https://example.com/api/users")
 })
 
+test("url with base which ends with a slash and route", () => {
+	const base = "https://example.com/api/"
+	const route = "/users"
+	const result = buildUrl({ base, endpoint: route })
+	expect(result).toBe("https://example.com/api/users")
+})
+
+test("url with base and route which does not start with a slash", () => {
+	const base = "https://example.com/api/"
+	const route = "users"
+	const result = buildUrl({ base, endpoint: route })
+	expect(result).toBe("https://example.com/api/users")
+})
+
 test("url with base, route, and params", () => {
 	const base = "https://example.com/api"
 	const route = "/users"

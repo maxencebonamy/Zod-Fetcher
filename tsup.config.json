@@ -2,11 +2,10 @@
 	"entry": [
 		"src/index.ts"
 	],
-	"splitting": false,
-	"sourcemap": true,
+	"sourcemap": false,
 	"clean": true,
 	"minify": true,
-	"format": "esm",
+	"format": ["esm", "cjs"],
 	"outDir": "dist",
 	"bundle": true,
 	"dts": true
