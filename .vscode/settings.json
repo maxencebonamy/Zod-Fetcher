@@ -1,6 +1,5 @@
 {
 	"prettier.enable": false,
-	"css.lint.unknownAtRules": "ignore",
 	"editor.formatOnSave": false,
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit"

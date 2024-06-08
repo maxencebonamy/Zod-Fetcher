@@ -1,4 +1,5 @@
 import type { GetProps, CreateOrEditProps, DeleteProps, RequestHandler, Query, ZodFetcherProps } from "#/client/client.type.js"
+import { ZodFetcherError, ZodFetcherErrorType } from "#/error"
 import { buildUrl } from "#/url/index.js"
 import { fetchWithError, type MaybeFunction } from "#/utils/index.js"
 import { validate } from "#/validation/index.js"
@@ -34,15 +35,16 @@ export class ZodFetcher {
 
 
 	public get<A extends unknown[], R>(props: MaybeFunction<A, GetProps<R>>): Query<A, R> {
+		this.checkBaseUrl()
 		return async (...args: A) => {
 			if (typeof props === "function") props = props(...args)
 			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
 
 			const { endpoint, responseSchema, headers, params, responseHandler } = props
-			const url = buildUrl({ base: this.baseUrl, endpoint, params })
+			const url = buildUrl(this.baseUrl, endpoint, params)
 			const data = await fetchWithError(url, { method: "GET", headers: headers || {} })
 
-			let validatedData = validate({ schema: responseSchema, value: data })
+			let validatedData = validate(responseSchema, data)
 			if (responseHandler) validatedData = responseHandler(validatedData)
 			return validatedData
 		}
@@ -61,16 +63,17 @@ export class ZodFetcher {
 	}
 
 	public delete<A extends unknown[], R>(props: MaybeFunction<A, DeleteProps<R>>): Query<A, R> {
+		this.checkBaseUrl()
 		return async (...args: A) => {
 			if (typeof props === "function") props = props(...args)
 			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
 
 			const { endpoint, responseSchema, headers, params, responseHandler } = props
-			const url = buildUrl({ base: this.baseUrl, endpoint, params })
+			const url = buildUrl(this.baseUrl, endpoint, params)
 			const data = await fetchWithError(url, { method: "DELETE", headers: headers || {} })
 
 			if (responseSchema) {
-				let validatedData = validate({ schema: responseSchema, value: data })
+				let validatedData = validate(responseSchema, data)
 				if (responseHandler) validatedData = responseHandler(validatedData)
 				return validatedData
 			}
@@ -84,28 +87,36 @@ export class ZodFetcher {
 		method: "POST" | "PUT" | "PATCH",
 		props: MaybeFunction<A, CreateOrEditProps<T, R>>
 	): Query<A, R> {
+		this.checkBaseUrl()
 		return async (...args: A) => {
 			if (typeof props === "function") props = props(...args)
 			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
 
 			const { endpoint, headers, params, responseSchema, responseHandler } = props
-			const url = buildUrl({ base: this.baseUrl, endpoint, params })
+			const url = buildUrl(this.baseUrl, endpoint, params)
 
 			let body: string | undefined
 			if (props.bodySchema) {
-				const validatedBody = validate({ schema: props.bodySchema, value: props.body })
+				const validatedBody = validate(props.bodySchema, props.body)
 				body = JSON.stringify(validatedBody)
 			}
 
 			const data = await fetchWithError(url, { method, headers: headers || {}, body })
 
 			if (responseSchema) {
-				let validatedData = validate({ schema: responseSchema, value: data })
+				let validatedData = validate(responseSchema, data)
 				if (responseHandler) validatedData = responseHandler(validatedData)
 				return validatedData
 			}
 
 			return undefined as R
+		}
+	}
+
+
+	private checkBaseUrl(): void {
+		if (this.baseUrl === undefined) {
+			throw new ZodFetcherError(ZodFetcherErrorType.BASE_URL, "The base url is undefined")
 		}
 	}
 

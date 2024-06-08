@@ -81,3 +81,21 @@ test("post request with response handler", async () => {
 	const result = await createUser()
 	expect(result).toEqual({ id: 2 })
 })
+
+test("post request without response schema", async () => {
+	vi.resetAllMocks()
+	const mockResponse = fakeResponse({ text: JSON.stringify({ id: 1 }) })
+	vi.mocked(fetch).mockResolvedValueOnce(mockResponse)
+
+	createZodFetcher({
+		key: "example_post6",
+		baseUrl: "https://example.com/api"
+	})
+	const createUser = ZodFetcher.use("example_post6").post({
+		endpoint: "/users",
+		body: { id: 1 },
+		bodySchema: z.object({ id: z.number() })
+	})
+	const result = await createUser()
+	expect(result).toBeUndefined()
+})

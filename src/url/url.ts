@@ -1,7 +1,7 @@
 import type { BuildUrlFunction } from "#/url/url.type.js"
 
 
-export const buildUrl: BuildUrlFunction = ({ base, endpoint, params }) => {
+export const buildUrl: BuildUrlFunction = (base, endpoint, params) => {
 	// add the base URL to the URL string
 	let url = base
 

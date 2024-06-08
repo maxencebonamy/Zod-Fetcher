@@ -1,4 +1,5 @@
 export enum ZodFetcherErrorType {
 	FETCH,
-	VALIDATION
+	VALIDATION,
+	BASE_URL
 }
