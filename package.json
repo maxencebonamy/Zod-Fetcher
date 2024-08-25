@@ -1,6 +1,6 @@
 {
 	"name": "zod-fetcher",
-	"version": "1.0.1",
+	"version": "1.0.3",
 	"description": "A simple utility to automatically wrap fetches with Zod schemas, for both request and response.",
 	"main": "dist/index.cjs",
 	"module": "dist/index.js",
