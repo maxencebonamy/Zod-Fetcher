@@ -37,10 +37,11 @@ export class ZodFetcher {
 	public get<A extends unknown[], R>(props: MaybeFunction<A, GetProps<R>>): Query<A, R> {
 		this.checkBaseUrl()
 		return async (...args: A) => {
-			if (typeof props === "function") props = props(...args)
-			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
+			let actualProps = typeof props === "function" ? props(...args) : props
+			// if (typeof props === "function") props = props(...args)
+			if (this.globalRequestHandler) actualProps = { ...actualProps, ...this.globalRequestHandler?.(actualProps) }
 
-			const { endpoint, responseSchema, headers, params, responseHandler } = props
+			const { endpoint, responseSchema, headers, params, responseHandler } = actualProps
 			const url = buildUrl(this.baseUrl, endpoint, params)
 			const data = await fetchWithError(url, { method: "GET", headers: headers || {} })
 
@@ -65,10 +66,10 @@ export class ZodFetcher {
 	public delete<A extends unknown[], R>(props: MaybeFunction<A, DeleteProps<R>>): Query<A, R> {
 		this.checkBaseUrl()
 		return async (...args: A) => {
-			if (typeof props === "function") props = props(...args)
-			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
+			let actualProps = typeof props === "function" ? props(...args) : props
+			if (this.globalRequestHandler) actualProps = { ...actualProps, ...this.globalRequestHandler?.(actualProps) }
 
-			const { endpoint, responseSchema, headers, params, responseHandler } = props
+			const { endpoint, responseSchema, headers, params, responseHandler } = actualProps
 			const url = buildUrl(this.baseUrl, endpoint, params)
 			const data = await fetchWithError(url, { method: "DELETE", headers: headers || {} })
 
@@ -89,15 +90,15 @@ export class ZodFetcher {
 	): Query<A, R> {
 		this.checkBaseUrl()
 		return async (...args: A) => {
-			if (typeof props === "function") props = props(...args)
-			if (this.globalRequestHandler) props = { ...props, ...this.globalRequestHandler?.(props) }
+			let actualProps = typeof props === "function" ? props(...args) : props
+			if (this.globalRequestHandler) actualProps = { ...actualProps, ...this.globalRequestHandler?.(actualProps) }
 
-			const { endpoint, headers, params, responseSchema, responseHandler } = props
+			const { endpoint, headers, params, responseSchema, responseHandler } = actualProps
 			const url = buildUrl(this.baseUrl, endpoint, params)
 
 			let body: string | undefined
-			if (props.bodySchema) {
-				const validatedBody = validate(props.bodySchema, props.body)
+			if (actualProps.bodySchema) {
+				const validatedBody = validate(actualProps.bodySchema, actualProps.body)
 				body = JSON.stringify(validatedBody)
 			}
 
