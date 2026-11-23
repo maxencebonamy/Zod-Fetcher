@@ -32,7 +32,7 @@
 		"typescript"
 	],
 	"author": "Maxence Bonamy",
-	"license": "ISC",
+	"license": "MIT",
 	"dependencies": {
 		"zod": "^3.23.8"
 	},
